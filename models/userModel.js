@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
     email : {type:String, unique:true, required:true},
     mobile_number:{type:String, unique:true, required:true},
     password : {type:String},
-    aadhar_number:{type:Number, unique:true},
+    aadhar_number:{type:String, unique:true},
     aadhar_kyc_status : {type:Boolean, default:false},
     address : {
         adress_line_1:{type:String},

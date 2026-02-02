@@ -1,5 +1,12 @@
 const express = require("express");
 const userModel = require("../models/userModel");
+const {configDotenv} = require('dotenv')
+
+const userService = require("../services/userService");
+const {generateOTP} = require("../utility/generateOTP");
+const generateToken = require("../utility/createToken");
+
+configDotenv()
 
 const register = async (req, res) => {
   try {
@@ -12,14 +19,7 @@ const register = async (req, res) => {
       });
     }
 
-    const checkData = await userModel.findOne({
-      //code of mongo db $or ---> it will check once for all 3 data
-      $or: [
-        { email: inputData.email },
-        { mobile_number: inputData.mobile_number },
-        { aadhar_number: inputData.aadhar_number },
-      ],
-    });
+    const checkData = await userService.findUser({email: inputData.email,mobile: inputData.mobile, aadhar: inputData.aadhar});
 
     if (checkData) {
       return res.json({
@@ -37,7 +37,7 @@ const register = async (req, res) => {
       data: storeDB,
     });
   } catch (error) {
-    console.log(error);
+    console.log("register error : ",error);
     return res.json({ status_code: 404, message: "Registration Failed" });
   }
 };
@@ -58,7 +58,10 @@ const login = async (req, res) => {
     }
 
     if (checkData.password === inputData.password) {
-      return res.status(200).json({ message: "loginned successfully!!!" });
+      const token = generateToken.generateToken(checkData.email, checkData._id)
+      console.log('token',token);
+
+      return res.status(200).json({message: "loggedin Successfully", token: token})
     } else {
       return res.status(404).json({
         message: "Invalid Credentials"
@@ -66,12 +69,39 @@ const login = async (req, res) => {
     }
   } catch (error) {
 
+    console.log("LOGIN ERROR", error);
+
       return res.json({
         status:404,
-        message:"Login Failed"
+        message:"Internal Server Error",
       }); 
   }
 };
+
+const loginWithOTP = async (req,res) => {
+  try {
+    const inputData = req.body;
+    if(Object.keys(inputData) === 0){
+      return res.status(404).json({message: "Provide number to login"});
+    }
+
+    const checkData = await userModel.findOne({mobile_number: inputData.mobile_number})
+
+    if(!checkData){
+      return res.status(404).json({message: "Account Does Not Exists"});
+    }
+
+    const otp = generateOTP();
+    console.log(otp);
+    return res.status(200).json({message: "OTP Sent successfully", data: otp})
+
+  } catch (error) {
+      return res.json({
+        status_code: 404,
+        message: "Internal Server Error",
+      })
+  }
+}
 
 const deleteUser = async (req, res) => {
   try {
@@ -127,4 +157,4 @@ const updateUser = async (req, res) => {
 };
 
 
-module.exports = { register, login, deleteUser, updateUser };
+module.exports = { register, login, deleteUser, updateUser, loginWithOTP};
