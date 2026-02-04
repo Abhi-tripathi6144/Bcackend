@@ -2,6 +2,9 @@ const express = require("express");
 const app = express();
 const connectDB = require("./middleware/DB");
 const userRouter = require('./routes/userRouters')
+const productRouter = require('./routes/productRouters')
+const sellerRouter = require('./routes/sellerRoutes')
+const categoryRouter = require('./routes/categoryRouters')
 
 let PORT = 3000;
 
@@ -11,6 +14,9 @@ app.use(express.json());
 connectDB()
 
 app.use('/user',userRouter)
+app.use('/product',productRouter)
+app.use('/seller',sellerRouter)
+app.use('/category', categoryRouter)
 
 
 app.listen(PORT, () => {
