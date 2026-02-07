@@ -1,6 +1,8 @@
 const express = require("express");
 const userModel = require("../models/userModel");
 const {configDotenv} = require('dotenv')
+const hashing = require("../utility/hashingPassword");
+const bcrypt = require("bcrypt");
 
 const userService = require("../services/userService");
 const {generateOTP} = require("../utility/generateOTP");
@@ -10,6 +12,7 @@ configDotenv()
 
 const register = async (req, res) => {
   try {
+    
     const inputData = req.body;
     //Object.keys(inputdata)----> gives a set of keys we input in postman
     if (Object.keys(inputData).length === 0) {
@@ -28,8 +31,12 @@ const register = async (req, res) => {
       });
     }
 
-    console.log(inputData);
-    const storeDB = await userModel.create(inputData);
+    const encriptedData = await hashing.doHash(inputData.password);
+    const newData = {...inputData, password:encriptedData}
+
+
+    // console.log(encriptedData);
+    const storeDB = await userModel.create(newData);
     //we use return cause if not then it will go beyond that and will find notthing and will give undefined
     return res.json({
       status_code: 200,
@@ -56,10 +63,10 @@ const login = async (req, res) => {
     if (!checkData) {
       return res.status(404).json({ message: "Account Does not exist" });
     }
-
-    if (checkData.password === inputData.password) {
+    const flag = await bcrypt.compare(inputData.password, checkData.password)
+    if (flag == true) {
       const token = generateToken.generateToken(checkData.email, checkData._id)
-      console.log('token',token);
+      // console.log('token',token);
 
       return res.status(200).json({message: "loggedin Successfully", token: token})
     } else {
@@ -92,7 +99,7 @@ const loginWithOTP = async (req,res) => {
     }
 
     const otp = generateOTP();
-    console.log(otp);
+    // console.log(otp);
     return res.status(200).json({message: "OTP Sent successfully", data: otp})
 
   } catch (error) {
