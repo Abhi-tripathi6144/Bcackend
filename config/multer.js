@@ -1,12 +1,16 @@
 const multer = require("multer");
 const path = require('path');
 const fs = require('fs');
-
+//current working dir --- process.cwd()
+//folder name -- uploads
+//saftly join path-- path.join
 const uploadDir = path.join(process.cwd(), "uploads");
 if(!fs.existsSync(uploadDir)){
     fs.mkdir(uploadDir,{recursive: true})
 }
+//create parent folder if needed --- recursive: true
 
+//cb(error, file/work/name)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, uploadDir);
