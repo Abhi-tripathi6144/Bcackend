@@ -10,9 +10,11 @@ const multerRouter = require('./routes/multerRouters');
 const cartRouter = require('./routes/cartRouters')
 const orderRouter = require('./routes/orderRouters')
 const reviewRouter = require('./routes/reviewRouters')
+const cors = require('cors')
 
 let PORT = 3000;
-
+//used so that it alloes communication between 2 ports (used for integrating backend)
+app.use(cors());
 //to convert the payload from string to object
 app.use(express.json());
 //connecting mongoDB

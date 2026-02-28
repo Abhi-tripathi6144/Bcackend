@@ -1,8 +1,11 @@
 const express = require("express");
 const sellerModel = require("../models/sellerModel");
 const sellerService = require("../services/sellerService");
+const bcrypt = require("bcrypt");
+const hashing = require("../utility/hashingPassword");
 
-const registerSeller = async (req, res) => {
+
+const createSeller = async (req, res) => {
   try {
     const inputData = req.body;
     if (Object.keys(inputData).length === 0) {
@@ -24,7 +27,11 @@ const registerSeller = async (req, res) => {
       });
     }
 
-    const storeDB = await sellerModel.create(inputData);
+    const encriptedData = await hashing.doHash(inputData.password);
+    const newData = { ...inputData, password: encriptedData };
+
+    // console.log(encriptedData);
+    const storeDB = await sellerModel.create(newData);
 
     return res.json({
       message: "seller registered",
@@ -125,4 +132,42 @@ const removeSeller = async (req, res) => {
   }
 };
 
-module.exports = { registerSeller, searchSeller, updateSeller, removeSeller };
+const getAllProductsOfASeller = async (req,res) => {
+  try {
+    const id = req.params.id;
+    const getData = await sellerService.getAllProducts(id);
+    console.log(getData);
+    return res.send(getData);
+
+
+  } catch (error) {
+    console.log(error);
+    return res.json({
+      status_code: 404,
+      message:"error in getAllProductsOfASeller"
+    })
+  }
+}
+
+const getProductWithSellerDetails = async(req,res) => {
+  try {
+    const id = req.params.id;
+    const getData = await sellerService.getAllProductsWithSellerDetails(id);
+    if(!getData){
+      return res.status(404).json({
+        message : "failed"
+      })
+    }
+    return res.status(200).json({
+      message:"successful",
+      data:getData,
+    })
+  } catch (error) {
+    console.log(error);
+    return res.json({
+      message:"error"
+    })
+  }
+}
+
+module.exports = { createSeller, searchSeller, updateSeller, removeSeller, getAllProductsOfASeller, getProductWithSellerDetails };

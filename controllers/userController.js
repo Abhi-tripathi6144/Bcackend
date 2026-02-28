@@ -163,5 +163,4 @@ const updateUser = async (req, res) => {
   }
 };
 
-
 module.exports = { register, login, deleteUser, updateUser, loginWithOTP};

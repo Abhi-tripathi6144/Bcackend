@@ -6,6 +6,7 @@ const { default: mongoose } = require('mongoose');
 
 const create = async (req,res) => {
     try {
+        const id = req.params.id;
         const inputData = req.body;
         if(Object.keys(inputData) === 0){
             return res.json({
