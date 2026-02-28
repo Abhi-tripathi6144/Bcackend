@@ -2,12 +2,13 @@ const mongoose = require("mongoose");
 const sellerModel = require('../models/sellerModel');
 
 
-const findSeller = async ({id, name, contact}) => {
+const findSeller = async ({name, email, contact, aadhar}) => {
     return await sellerModel.findOne({
         $or: [
-            {seller_id: id},
-            {shop_name: name},
-            {contact_no: contact}
+            {first_name: name},
+            {email: email},
+            {mobile_number: contact},
+            {aadhar_number: aadhar}
         ]
     });
 }

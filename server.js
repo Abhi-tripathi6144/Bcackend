@@ -7,6 +7,9 @@ const productRouter = require('./routes/productRouters')
 const sellerRouter = require('./routes/sellerRoutes')
 const categoryRouter = require('./routes/categoryRouters')
 const multerRouter = require('./routes/multerRouters');
+const cartRouter = require('./routes/cartRouters')
+const orderRouter = require('./routes/orderRouters')
+const reviewRouter = require('./routes/reviewRouters')
 
 let PORT = 3000;
 
@@ -20,7 +23,9 @@ app.use('/product',productRouter)
 app.use('/seller',sellerRouter)
 app.use('/category', categoryRouter)
 app.use('/multer', multerRouter)
-
+app.use('/cart',cartRouter)
+app.use('/order',orderRouter)
+app.use('/review',reviewRouter)
 
 app.listen(PORT, () => {
   console.log(`server strated at 3000`);

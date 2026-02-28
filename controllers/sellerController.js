@@ -1,37 +1,42 @@
-const express = require('express');
-const sellerModel = require('../models/sellerModel');
-const sellerService = require('../services/sellerService')
+const express = require("express");
+const sellerModel = require("../models/sellerModel");
+const sellerService = require("../services/sellerService");
 
-const registerSeller = async (req,res) => {
-    try {
-        const inputData = req.body;
-        if(Object.keys(inputData).length === 0){
-            return res.json({
-                status_code:404,
-                message: "insufficient data"
-            })
-        }
-
-        const checkData = await sellerService.findSeller({id:inputData.seller_id, name:inputData.shop_name, contact:inputData.contact_no});
-        if(checkData){
-            return res.status(200).json({
-                message: "seller already exists"
-            })
-        }
-
-        const storeDB = await sellerModel.create(inputData);
-
-        return res.json({
-            message: "seller registered",
-            data: storeDB
-        })
-    } catch (error) {
-        console.log(error);
-        return res.json({
-            message: "seller registratoin failed"
-        })
+const registerSeller = async (req, res) => {
+  try {
+    const inputData = req.body;
+    if (Object.keys(inputData).length === 0) {
+      return res.json({
+        status_code: 404,
+        message: "insufficient data",
+      });
     }
-}
+
+    const checkData = await sellerService.findSeller({
+      name: inputData.first_name,
+      email: inputData.email,
+      contact: inputData.mobile_number,
+      aadhar: inputData.aadhar_number,
+    });
+    if (checkData) {
+      return res.status(200).json({
+        message: "seller already exists",
+      });
+    }
+
+    const storeDB = await sellerModel.create(inputData);
+
+    return res.json({
+      message: "seller registered",
+      data: storeDB,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.json({
+      message: "seller registratoin failed",
+    });
+  }
+};
 
 const searchSeller = async (req, res) => {
   try {
@@ -43,22 +48,25 @@ const searchSeller = async (req, res) => {
       });
     }
 
-    const checkData = await sellerModel.findOne({seller_id:inputData.seller_id, shop_name:inputData.shop_name, contact_no:inputData.contact_no});
+    const checkData = await sellerModel.findOne({
+      first_name: inputData.first_name,
+      email: inputData.email,
+      mobile_number: inputData.mobile_number,
+      aadhar_number: inputData.aadhar_number,
+    });
+    console.log(checkData);
     if (!checkData) {
       return res.status(404).json({ message: "Seller Does not exist" });
     }
 
-      return res.status(200).json({message: "Seller found Successfully"})
-    
-    
+    return res.status(200).json({ message: "Seller found Successfully" });
   } catch (error) {
-
     console.log("read ERROR", error);
 
-      return res.json({
-        status:404,
-        message:"error in reading Error",
-      }); 
+    return res.json({
+      status: 404,
+      message: "error in reading Error",
+    });
   }
 };
 
@@ -72,11 +80,10 @@ const updateSeller = async (req, res) => {
       });
     }
 
-    const updatedSeller = await sellerModel.findByIdAndUpdate(
-      id,
-      req.body,
-      { new: true, runValidators: true }
-    );
+    const updatedSeller = await sellerModel.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedSeller) {
       return res.status(404).json({
@@ -88,36 +95,34 @@ const updateSeller = async (req, res) => {
       message: "seller info Updated Successfully",
       data: updatedSeller,
     });
-
   } catch (error) {
     console.log(error);
-    return res.status(400).json({ 
+    return res.status(400).json({
       message: " seller Updation Failed",
     });
   }
 };
 
-const removeSeller = async (req,res) => {
-    try{
-        const id = req.params.id;
-        const removeSeller = await sellerModel.findByIdAndDelete(id);
-        if(removeSeller){
-            console.log(removeSeller);
-            return res.json({
-                message: "seller removed Successfully"
-            })
-        }else{
-             return res.json({
-                message: "seller not found"
-            })
-        }
-    }catch(err){
-        console.log(err);
-        return res.json({
-            message: "error in deletion"
-        })
+const removeSeller = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const removeSeller = await sellerModel.findByIdAndDelete(id);
+    if (removeSeller) {
+      console.log(removeSeller);
+      return res.json({
+        message: "seller removed Successfully",
+      });
+    } else {
+      return res.json({
+        message: "seller not found",
+      });
     }
-}
+  } catch (err) {
+    console.log(err);
+    return res.json({
+      message: "error in deletion",
+    });
+  }
+};
 
-
-module.exports = {registerSeller, searchSeller, updateSeller, removeSeller}
+module.exports = { registerSeller, searchSeller, updateSeller, removeSeller };
